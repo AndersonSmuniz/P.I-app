@@ -1,19 +1,38 @@
 import React, { useState } from "react";
-import { Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Container, LogoContainer, InputContainer, Button, ButtonText } from "./styles";
+import { Container, LogoContainer, InputContainer, Button, ButtonText } from "../../assets/styles/styles.js";
 import DiskBarber from "../../assets/logo/DiskBarber.svg";
+import login_client from "../../routes/routes.js"
 
 const LoginScreen = () => {
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigation = useNavigation();
 
     // Função pra o login
-    const handleLogin = () => {
-        // Aqui você pode adicionar a lógica para fazer o login com o email e senha
-        console.log("Email:", email);
-        console.log("Senha:", password);
+    const handleLogin = async () => {
+        console.log(username, password);
+        if (username != "" && password != "") {
+            const data = {
+                'username': username,
+                'password': password
+            }
+            try {
+                const response = await login_client(data);
+
+                Alert.alert('Sucesso', 'Logado', [
+                    { title: "Seccess", message: 'Entrou no app!', type: 'default' },
+                ]);
+                // navigation.navigate("Home", { token: response.data });
+
+            } catch (error) {
+                console.error("Erro durante login: ", error);
+                alert("Ocorreu um erro no login.");
+            }
+        } else {
+            alert("Preencha todos os campos.")
+        };
     };
 
     return (
@@ -26,13 +45,13 @@ const LoginScreen = () => {
 
             {/* Formulário de login */}
             <InputContainer>
-                {/* Rótulo e campo de email */}
-                <Text style={styles.label}>Email</Text>
+                {/* Rótulo e campo de username */}
+                <Text style={styles.label}>Username</Text>
                 <TextInput
                     placeholderTextColor="#000"
                     style={styles.input}
-                    value={email}
-                    onChangeText={setEmail}
+                    value={username}
+                    onChangeText={setUsername}
                 />
 
                 {/* Rótulo e campo de senha */}
@@ -56,7 +75,7 @@ const LoginScreen = () => {
                 </Button>
 
                 {/* Link para tela de cadastro */}
-                <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
+                <TouchableOpacity onPress={() => navigation.reset({ routes: [{ name: 'ChooseRole' }] })}>
                     <Text style={styles.signupLink}>É novo por aqui? Se cadastre!</Text>
                 </TouchableOpacity>
             </InputContainer>
