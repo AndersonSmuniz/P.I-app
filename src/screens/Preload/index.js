@@ -12,7 +12,7 @@ export default () => {
         // Função assíncrona para armazenar dados no AsyncStorage
         const storeData = async () => {
             try {
-                await AsyncStorage.setItem('token', 'null');
+                await AsyncStorage.setItem('token', '');
                 console.log('Data stored successfully!');
             } catch (error) {
                 console.error('Failed to store data:', error);
@@ -26,6 +26,10 @@ export default () => {
                 console.log(token);
                 if (token !== 'null') {
                     console.log('Data retrieved successfully:', token);
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'MainTabClient'}]
+                    });
                 } else {
                     navigation.navigate("SignIn")
                 }
@@ -35,7 +39,7 @@ export default () => {
         };
 
         // Chamada das funções de armazenamento e recuperação de dados
-        storeData();
+        // storeData();
         getData();
     }, []);
 

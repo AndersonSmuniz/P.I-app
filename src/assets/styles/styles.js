@@ -30,3 +30,8 @@ export const ButtonText = styled.Text`
     font-weight: 400;
     font-size: 16px;
 `;
+
+export const SearchInput = styled.TextInput`
+    height: 40px;
+
+`;

@@ -4,6 +4,8 @@ import { useNavigation } from "@react-navigation/native";
 import { Container, LogoContainer, InputContainer, Button, ButtonText } from "../../assets/styles/styles.js";
 import DiskBarber from "../../assets/logo/DiskBarber.svg";
 import login_client from "../../routes/routes.js"
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const LoginScreen = () => {
     const [username, setUsername] = useState("");
@@ -12,19 +14,21 @@ const LoginScreen = () => {
 
     // Função pra o login
     const handleLogin = async () => {
-        console.log(username, password);
-        if (username != "" && password != "") {
+        if (username !== "" && password !== "") {
             const data = {
                 'username': username,
                 'password': password
             }
+            console.log(data);
             try {
                 const response = await login_client(data);
+                console.log(response);
 
-                Alert.alert('Sucesso', 'Logado', [
-                    { title: "Seccess", message: 'Entrou no app!', type: 'default' },
-                ]);
-                // navigation.navigate("Home", { token: response.data });
+                const tokenString = JSON.stringify(response.data);
+                await AsyncStorage.setItem('token', tokenString);
+                navigation.reset({
+                    routes:[{name:"MainTabClient"}]
+                 });
 
             } catch (error) {
                 console.error("Erro durante login: ", error);
