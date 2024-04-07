@@ -1,9 +1,12 @@
 import api from "../Api";
 
+/**
+ * Verifica a validade de um token fornecido.
+ */
 const check_token = async (data) => {
     try {
         const response = await api.post('api/token/verify/', data);
-        console.log(response);
+        console.log('sasda', response);
         return response.data;
     } catch (error) {
         console.error('Erro ao checar token:', error);
@@ -11,7 +14,10 @@ const check_token = async (data) => {
     }
 };
 
-const Login_client = async (data) => {
+/**
+ * Faz login em um cliente usando os dados fornecidos.
+ */
+const loginClient = async (data) => {
     try {
         const response = await api.post('api/token/', data)
         return response;
@@ -21,4 +27,44 @@ const Login_client = async (data) => {
     }
 }
 
-export default (check_token, Login_client);
+/**
+ * Recupera uma lista de salões da API.
+ */
+const getSalons = async () => {
+
+    const response = await api.get('salon/');
+    return response;
+}
+
+const getSalonsFavorites = async () => {
+
+    const response = await api.get('salon/');
+    return response;
+}
+
+const getSalon = async (id) => {
+    try {
+        const response = await api.get(`salon/${id}/`);
+        return response; 
+    } catch (error) {
+        console.log("Response Erro na busca do Salão:", error);
+        throw new Error ("Nenhum salão encontrado com o ID informado.");
+    }
+}
+
+const getSalonServices = async (id_salon) => {
+    try {
+        const response = await api.get(`salon/${id_salon}/services/`);
+        return response;
+    } catch (error) {
+        console.log("Response erro ao buscar serviço do salão "+ id_salon, error);
+    }
+}
+export {
+    check_token,
+    loginClient,
+    getSalons,
+    getSalonsFavorites,
+    getSalon,
+    getSalonServices,
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, TextInput, TouchableOpacity, Text, ScrollView, Dimensions, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import HeaderClient from "../../components/HeaderClient";
@@ -6,12 +6,53 @@ import * as Animatable from 'react-native-animatable';
 import { useNavigation } from "@react-navigation/native";
 
 import SearchIcon from "../../assets/search.svg";
-import Location from "../../assets/location.svg"
+
+import SalonsComponent from "../../components/SalonsComponent.js"
+import SalonsFavoritesComponent from "../../components/SalonsFavoritesComponent.js"
+
+import { getSalons, getSalonsFavorites } from "../../routes/routes.js"
 
 const HomeClient = () => {
-    const navigation = useNavigation()
+    const navigation = useNavigation();
     const [isFocused, setIsFocused] = useState(false);
     const [activeLink, setActiveLink] = useState('All');
+    const [salonsList, setSalonsList] = useState([]);
+
+    useEffect(() => {
+        fetchSalons();
+    }, []);
+
+    const fetchSalons = async () => {
+        try {
+            console.log("fetching salons");
+            const response = await getSalons();
+            console.log(response.data);
+            setSalonsList(response.data);
+        } catch (error) {
+            console.log("Error fetching salons:", error);
+        }
+    };
+    const fetchSalonsFavorites = async () => {
+        try {
+            console.log("fetching salons favorites");
+            const response = await getSalonsFavorites();
+            setSalonsList(response.data);
+        } catch (error) {
+            console.log("Error fetching salons:", error);
+        }
+    };
+
+    const handleAllClick = (activeText) => {
+        if (activeText == "All") {
+            setActiveLink('All');
+            fetchSalons();
+        }
+        else {
+            setActiveLink('Favorites');
+            fetchSalonsFavorites();
+        }
+
+    };
 
     return (
         <SafeAreaView style={styles.screen}>
@@ -31,11 +72,10 @@ const HomeClient = () => {
                 </TouchableOpacity>
                 <TextInput
                     style={styles.searchInput}
-                    placeholder="Pesquisar por nome do salão"
+                    placeholder="Pesquisar o salão"
                     placeholderTextColor="#888"
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
-
                 />
             </View>
 
@@ -43,26 +83,15 @@ const HomeClient = () => {
                 <Text style={styles.title} >Salões</Text>
             </View>
             <View style={styles.listings}>
-                <TouchableOpacity onPress={() => setActiveLink('All')} style={activeLink === 'All' ? styles.activeLink : styles.link}>
+                <TouchableOpacity onPress={() => handleAllClick('All')} style={activeLink === 'All' ? styles.activeLink : styles.link}>
                     <Text style={styles.linkText}>All</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => setActiveLink('Favorites')} style={activeLink === 'Favorites' ? styles.activeLink : styles.link}>
+                <TouchableOpacity onPress={() => handleAllClick('Favorites')} style={activeLink === 'Favorites' ? styles.activeLink : styles.link}>
                     <Text style={styles.linkText}>Favorites</Text>
                 </TouchableOpacity>
             </View>
-            <ScrollView>
-                <TouchableOpacity style={styles.card} onPress={()=> navigation.navigate("Salon")}>
-                    <Image source={{ uri: "https://th.bing.com/th/id/OIP.esfcXL7-1BLqq3a1fDyh1AHaE8?rs=1&pid=ImgDetMain" }} style={styles.image} />
-                    <View>
-                        <Text style={styles.textCard} >Nome do Salao</Text>
-                        <View style={styles.line} >
-                            <Location width="24" height="24" />
-                            <Text style={styles.adreess}>Rua x</Text>
-                        </View>
-                    </View>
-
-                </TouchableOpacity>
-            </ScrollView>
+            {activeLink === 'All' && <SalonsComponent salonsList={salonsList} />}
+            {activeLink === 'Favorites' && <SalonsFavoritesComponent salonsList={salonsList} />}
         </SafeAreaView>
     );
 };
@@ -104,7 +133,6 @@ const styles = StyleSheet.create({
     },
     listings: {
         flexDirection: "row",
-
     },
     link: {
         marginVertical: 10,
@@ -121,43 +149,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         marginHorizontal: 15,
     },
-    //CARD
-    card: {
-        flexDirection: "row",
-        marginVertical: 10,
-        width: "auto",
-        height: 100,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.5,
-        shadowRadius: 1,
-        borderRadius: 30,
-        alignContent: 'center',
-        alignItems: "center"
-    },
-    image: {
-        margin: 10,
-        alignSelf: 'flex-start',
-        alignItems: "center",
-        alignContent: "center",
-        borderRadius: 40,
-        height: 80,
-        width: 80,
-    },
-    textCard: {
-        padding: 10,
-        alignContent: "center",
-        color: "#fff",
-        fontSize: 16,
-    },
-    line:{
-        flexDirection:'row',
-        gap: 5,
-        marginLeft: 10,
-    },
-    adreess:{
-        color:"#6B7078",
-        fontSize:16,
-    }
+
 });
 
 export default HomeClient;
