@@ -77,8 +77,7 @@ const Salon = () => {
                     <Text style={[styles.iconText, selectedIcon === 'map' && styles.selectedText]}>Mapa</Text>
                 </TouchableOpacity>
             </View>
-            {/* Aqui você renderiza o componente correspondente ao ícone selecionado */}
-            {/* Exemplo: */}
+            {/* renderiza componentes com base no icine pressionado */}
             {selectedIcon === 'services' && <ServiceComponent id_salon={salonData.id} />}
             {selectedIcon === 'barbers' && <TeamComponent />}
             {selectedIcon === 'map' && <MapComponent />}

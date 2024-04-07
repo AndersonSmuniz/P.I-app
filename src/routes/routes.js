@@ -54,12 +54,23 @@ const getSalon = async (id) => {
 
 const getSalonServices = async (id_salon) => {
     try {
-        const response = await api.get(`salon/${id_salon}/services/`);
+        const response = await api.get(`salon/${id_salon}/services`);
         return response;
     } catch (error) {
         console.log("Response erro ao buscar serviço do salão "+ id_salon, error);
     }
 }
+
+const getBarbersService = async (id_service) => {
+
+    try {
+        const response = await api.get(`services/${id_service}/barbers`);
+        return response;
+    } catch (error) {
+        console.log("Response erro ao buscar barbeiros do serviço(s)"+ id_service, error);
+    }
+}
+
 export {
     check_token,
     loginClient,
@@ -67,4 +78,5 @@ export {
     getSalonsFavorites,
     getSalon,
     getSalonServices,
+    getBarbersService,
 }

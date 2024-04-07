@@ -8,6 +8,7 @@ import ChooseRoleScreen from "../screens/ChooseRoleScreen";
 import SignupClientSecondPartScreen from "../screens/SignupClientSecondPart";
 import MainTabClient from "./MainTabClient";
 import Salon from "../screens/Salon";
+import BookingService from "../screens/BookingService";
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,7 @@ export default () => {
             <Stack.Screen name="MainTabClient" component={MainTabClient} />
             
             <Stack.Screen name="Salon" component={Salon} />
+            <Stack.Screen name="Booking" component={BookingService} />
         </Stack.Navigator>
     );
 }
