@@ -1,17 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useRoute } from '@react-navigation/native'; // Importe o hook useRoute
+import { useRoute } from '@react-navigation/native';
+
+import { getBarbersService } from "../../routes/routes";
 
 const BookingService = () => {
-  const route = useRoute(); // Use o hook useRoute para acessar os parâmetros da rota
-  const selectedService = route.params.selectedService; // Acesse os parâmetros da rota
+  const route = useRoute();
+  const selectedService = route.params.selectedService;
+  const [barbers, setBarbers] = useState([]);
+
+  // Função para buscar os barbeiros que oferecem o serviço selecionado
+  const fetchBarbers = async () => {
+    try {
+      const response = await getBarbersService(selectedService.id);
+
+      setBarbers(response.data);
+    } catch (error) {
+      console.log("Error fetching barbers:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBarbers();
+  }, []); // Executa apenas uma vez quando o componente é montado
 
   const [selectedBarber, setSelectedBarber] = useState(null);
 
   // Função para selecionar o barbeiro
   const handleBarberSelection = (barber) => {
     setSelectedBarber(barber);
-    // Implemente aqui a lógica para buscar os horários disponíveis do barbeiro selecionado
   };
 
   // Função para ir para a tela de seleção de mais serviços
@@ -22,11 +39,11 @@ const BookingService = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Escolha o barbeiro</Text>
-      
+
       {/* Lista de barbeiros disponíveis */}
       <View style={styles.barberList}>
         {/* Mapeamento dos barbeiros disponíveis */}
-        {selectedService.barbers.map((barber, index) => (
+        {barbers.map((barber, index) => (
           <TouchableOpacity
             key={index}
             style={[
@@ -35,7 +52,7 @@ const BookingService = () => {
             ]}
             onPress={() => handleBarberSelection(barber)}
           >
-            <Text style={styles.barberName}>{barber.name}</Text>
+            <Text style={styles.barberName}>{barber.collaborator_details.full_name}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -54,8 +71,9 @@ const BookingService = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    padding: 20,
+    backgroundColor: "#2D343C",
+    paddingHorizontal: 20,
+    paddingVertical: 20,
   },
   title: {
     fontSize: 20,

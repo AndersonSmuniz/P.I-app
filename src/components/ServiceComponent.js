@@ -33,8 +33,8 @@ const ServiceComponent = ({ id_salon }) => {
         setSelectedService(null);
     };
 
-    const handleScheduleService = () => {
-        // Navegue para a tela de agendamento passando o serviço selecionado como parâmetro
+    const handleScheduleService = (selectedService) => {
+        console.log(selectedService);
         navigation.navigate("Booking", { selectedService });
     };
 
@@ -74,7 +74,7 @@ const ServiceComponent = ({ id_salon }) => {
                             <Text style={styles.modalDescription}>{selectedService?.description}</Text>
                             <Text style={styles.modalPrice}>{selectedService?.price} R$</Text>
                         </ScrollView>
-                        <TouchableOpacity style={styles.scheduleButton} onPress={handleScheduleService}>
+                        <TouchableOpacity style={styles.scheduleButton} onPress={() => handleScheduleService(selectedService)}>
                             <Text style={styles.scheduleButtonText}>Agendar serviço</Text>
                         </TouchableOpacity>
                     </View>

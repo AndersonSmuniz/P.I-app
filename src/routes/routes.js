@@ -61,13 +61,13 @@ const getSalonServices = async (id_salon) => {
     }
 }
 
-const getBarbersService = async (id_service) => {
+const getBarbersService = async (service_id) => {
 
     try {
-        const response = await api.get(`services/${id_service}/barbers`);
+        const response = await api.get(`service/${service_id}/collaborators/`);
         return response;
     } catch (error) {
-        console.log("Response erro ao buscar barbeiros do serviço(s)"+ id_service, error);
+        console.log("Response erro ao buscar barbeiros do serviço(s)"+ service_id, error);
     }
 }
 
