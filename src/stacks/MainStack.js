@@ -9,6 +9,7 @@ import SignupClientSecondPartScreen from "../screens/SignupClientSecondPart";
 import MainTabClient from "./MainTabClient";
 import Salon from "../screens/Salon";
 import BookingService from "../screens/BookingService";
+import ServicesCategory from "../screens/ServicesCategory";
 
 const Stack = createStackNavigator();
 
@@ -29,6 +30,7 @@ export default () => {
             <Stack.Screen name="MainTabClient" component={MainTabClient} />
             
             <Stack.Screen name="Salon" component={Salon} />
+            <Stack.Screen name="Services" component={ServicesCategory} />
             <Stack.Screen name="Booking" component={BookingService} />
         </Stack.Navigator>
     );

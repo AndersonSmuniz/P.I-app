@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text, Image, TouchableOpacity, Modal, ScrollView } from "react-native";
-import { useNavigation } from '@react-navigation/native'; // Importe o hook de navegação
+import { useNavigation } from '@react-navigation/native';
 
 import { getSalonServices } from '../routes/routes';
 
 import Close from "../assets/close.svg"
 
-const ServiceComponent = ({ id_salon }) => {
-    const navigation = useNavigation(); // Obtenha a instância de navegação
+const ServiceComponent = ({ id_category, title_category }) => {
+    const navigation = useNavigation();
 
     const [services, setServices] = useState([]);
     const [selectedService, setSelectedService] = useState(null);
@@ -15,7 +15,7 @@ const ServiceComponent = ({ id_salon }) => {
     useEffect(() => {
         const fetchServices = async () => {
             try {
-                const response = await getSalonServices(id_salon);
+                const response = await getSalonServices(id_category);
                 setServices(response.data);
             } catch (error) {
                 console.log("Error fetching services:", error);
@@ -35,12 +35,12 @@ const ServiceComponent = ({ id_salon }) => {
 
     const handleScheduleService = (selectedService) => {
         console.log(selectedService);
-        navigation.navigate("Booking", { selectedService });
+        navigation.navigate("Booking", { selectedService: selectedService });
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Serviços</Text>
+            <Text style={styles.title}>{title_category}</Text>
             {services.map((service, index) => (
                 <TouchableOpacity key={index} style={styles.serviceContainer} onPress={() => handleServicePress(service)}>
                     <View style={styles.serviceInfo}>
@@ -165,9 +165,8 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     closeButton: {
-        position: "absolute",
-        top: 10,
-        right: 15,
+        justifyContent: "flex-end",
+        alignItems:"flex-end"
     },
     closeButtonText: {
         fontSize: 20,

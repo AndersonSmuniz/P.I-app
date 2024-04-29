@@ -52,22 +52,47 @@ const getSalon = async (id) => {
     }
 }
 
-const getSalonServices = async (id_salon) => {
+const getSalonCategory = async (id_salon) => {
     try {
-        const response = await api.get(`salon/${id_salon}/services`);
+        const response = await api.get(`salon/${id_salon}/category`);
         return response;
     } catch (error) {
-        console.log("Response erro ao buscar serviço do salão "+ id_salon, error);
+        console.log("Response erro ao buscar categorias do salão "+ id_salon, error);
     }
 }
 
-const getBarbersService = async (service_id) => {
-
+const getSalonServices = async (id_category) => {
     try {
-        const response = await api.get(`service/${service_id}/collaborators/`);
+        const response = await api.get(`category/${id_category}/services`);
         return response;
     } catch (error) {
-        console.log("Response erro ao buscar barbeiros do serviço(s)"+ service_id, error);
+        console.log("Response erro ao buscar serviço do salão "+ id_category, error);
+    }
+}
+
+const getBarbersService = async (salon_id) => {
+
+    try {
+        console.log("colla", salon_id);
+        const response = await api.get(`salon/${salon_id}/collaborators`);
+        console.log(response.data);
+        return response;
+    } catch (error) {
+        console.log("Response erro ao buscar barbeiros do serviço(s)"+ salon_id, error);
+    }
+}
+
+const getScheduleBarber = async (barber, date, services) => {
+    try {
+        console.log(date, services);
+        const response = await api.get(`schedule/barber/${barber}/date/${date}/`, {
+            params: {
+                services: services
+            }
+        });
+        return response;
+    } catch (error) {
+        console.log("Error fetching barber:", error);
     }
 }
 
@@ -77,6 +102,8 @@ export {
     getSalons,
     getSalonsFavorites,
     getSalon,
+    getSalonCategory,
     getSalonServices,
     getBarbersService,
+    getScheduleBarber,
 }

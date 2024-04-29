@@ -3,7 +3,7 @@ import { StyleSheet, View, TouchableOpacity, Text, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
-import ServiceComponent from '../../components/ServiceComponent';
+import CategoryComponent from '../../components/CategoryComponent';
 import TeamComponent from '../../components/TeamComponent';
 import MapComponent from '../../components/MapComponent';
 
@@ -78,7 +78,7 @@ const Salon = () => {
                 </TouchableOpacity>
             </View>
             {/* renderiza componentes com base no icine pressionado */}
-            {selectedIcon === 'services' && <ServiceComponent id_salon={salonData.id} />}
+            {selectedIcon === 'services' && <CategoryComponent id_salon={salonData.id} />}
             {selectedIcon === 'barbers' && <TeamComponent />}
             {selectedIcon === 'map' && <MapComponent />}
         </SafeAreaView>
