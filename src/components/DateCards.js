@@ -1,50 +1,58 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale'; // Importa o locale para português do Brasil
+import { ptBR } from 'date-fns/locale';
 
 const DateCard = ({ date, selectedDate, handleDateSelection }) => {
-  const dat = format(date, 'dd/MM/yyyy', { locale: ptBR });
-  const dayWeek = format(date, 'EEEE', { locale: ptBR }).toUpperCase(); // Formata o dia da semana em maiúsculas
+  const formattedDate = format(date, 'dd/MM/yyyy', { locale: ptBR });
+  const dayOfMonth = format(date, 'dd', { locale: ptBR });
+  const dayOfWeek = format(date, 'EEEEEE', { locale: ptBR }).toUpperCase(); 
 
   return (
     <TouchableOpacity
       style={[
         styles.dateCard,
-        selectedDate === dat && styles.selectedDateCard,
+        selectedDate === formattedDate && styles.selectedDateCard,
       ]}
-      onPress={() => handleDateSelection(dat)}
+      onPress={() => handleDateSelection(formattedDate)}
     >
-      <Text style={styles.dayOfWeek}>{dayWeek}</Text>
-      <Text style={styles.dateText}>{dat}</Text>
+      <Text style={[styles.dayOfWeek, selectedDate === formattedDate && styles.whiteText]}>
+        {dayOfWeek}
+      </Text>
+      <Text style={styles.dateText}>{dayOfMonth}</Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   dateCard: {
-    backgroundColor: "#9A7400",
+    borderWidth: 1,
+    borderColor: '#FEC000',
     padding: 10,
     borderRadius: 10,
     marginRight: 10,
-    width: 150,
-    height: 120,
+    width: 60,
+    height: 100,
   },
   selectedDateCard: {
     backgroundColor: "#FEC000",
   },
   dayOfWeek: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#000",
-    textTransform: "uppercase",
-    marginBottom: 20,
-  },
-  dateText: {
     fontSize: 12,
     fontWeight: "bold",
+    color: "#FEC000",
+    textTransform: "uppercase",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  whiteText: {
     color: "#fff",
-    textAlign: "center"
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
   },
 });
 

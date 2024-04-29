@@ -27,7 +27,7 @@ const BookingService = () => {
 
   useEffect(() => {
     fetchBarbers();
-  }, []); // Executa apenas uma vez quando o componente é montado
+  }, []);
 
   // Função para selecionar o barbeiro
   const handleBarberSelection = (barber) => {
@@ -38,48 +38,50 @@ const BookingService = () => {
   const handleDateSelection = async (date) => {
     const [day, month, year] = date.split('/');
     const isoDate = `${year}-${month}-${day}`;
-  
-    setSelectedDate(isoDate);
-    console.log(isoDate);
+
+    setSelectedDate(date);
     try {
       const services = [selectedService]
       const serviceIds = services.map(service => service.id).join(',');
-      console.log('servicos',serviceIds);
       const response = await getScheduleBarber(selectedBarber.auth, isoDate, serviceIds);
-      console.log(response.data);
-      setAvailableSlots(response.data.horarios_livres); // Armazena os horários disponíveis no estado
+      setAvailableSlots(response.data.horarios_livres);
     } catch (error) {
       console.log("Error fetching barber schedule:", error);
     }
   };
 
-  // Função para renderizar os cards dos barbeiros
   const renderBarberCards = () => {
-    return barbers.map((barber, index) => (
-      <TouchableOpacity
-        key={index}
-        style={[
-          styles.barberCard,
-          selectedBarber === barber && styles.selectedBarberCard,
-        ]}
-        onPress={() => handleBarberSelection(barber)}
-      >
-        <Image source={{ uri: barber.photo }} style={styles.image} />
-        <Text style={styles.barberName}>{barber.full_name}</Text>
-      </TouchableOpacity>
-    ));
+    return (
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={barbers}
+        keyExtractor={(item, index) => index.toString()} // Usar o índice como chave única
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={[
+              styles.barberCard,
+              selectedBarber === item && styles.selectedBarberCard,
+            ]}
+            onPress={() => handleBarberSelection(item)}
+          >
+            <Image source={{ uri: item.photo }} style={styles.image} />
+            <Text style={styles.barberName}>{item.full_name}</Text>
+          </TouchableOpacity>
+        )}
+      />
+    );
   };
 
-  // Função para renderizar os cards de datas
   const renderDateCards = () => {
     const nextDays = [];
     let currentDate = new Date();
-  
+
     for (let i = 0; i < 7; i++) {
       const nextDate = addDays(currentDate, i);
       nextDays.push(nextDate);
     }
-  
+
     return (
       <FlatList
         horizontal
@@ -97,7 +99,6 @@ const BookingService = () => {
     );
   };
 
-  // Função para renderizar os cards dos horários disponíveis
   const renderTimeCards = () => {
     return availableSlots.map((time, index) => (
       <TouchableOpacity
@@ -111,16 +112,15 @@ const BookingService = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <Text style={styles.title}>Escolha o barbeiro</Text>
 
       {/* Lista de barbeiros disponíveis */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll}>
-        <View style={styles.barberList}>
-          {/* Renderização dos cards dos barbeiros */}
-          {renderBarberCards()}
-        </View>
-      </ScrollView>
+
+      <View style={styles.barberList}>
+        {/* Renderização dos cards dos barbeiros */}
+        {renderBarberCards()}
+      </View>
 
       {/* Carrossel de datas */}
       <Text style={styles.subtitle}>Escolha a data</Text>
@@ -139,7 +139,7 @@ const BookingService = () => {
       >
         <Text style={styles.moreServicesButtonText}>Escolher mais serviços</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 
@@ -164,12 +164,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     color: "#fff",
   },
-  scroll:{
+  scroll: {
     height: 5
   },
   barberList: {
     flexDirection: "row",
-    alignItems:"center",
+    alignItems: "center",
     justifyContent: "center",
     marginBottom: 0,
     width: 150,
@@ -214,7 +214,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   timeCard: {
-    backgroundColor: "#fff",
+    borderWidth: 0.4,
+    borderColor: "#fff",
     padding: 10,
     margin: 5,
     borderRadius: 5,
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#000",
+    color: "#fff",
   },
 });
 
