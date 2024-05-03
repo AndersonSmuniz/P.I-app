@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, FlatList } from "react-native";
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { addDays, format } from 'date-fns';
 import DateCard from "../../components/DateCards";
 
+import Back from "../../assets/back.svg";
 import { getBarbersService, getScheduleBarber } from "../../routes/routes";
+
 
 const BookingService = () => {
   const route = useRoute();
@@ -13,6 +15,8 @@ const BookingService = () => {
   const [selectedBarber, setSelectedBarber] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
+  const navigation = useNavigation();
+
 
   // Função para buscar os barbeiros que oferecem o serviço selecionado
   const fetchBarbers = async () => {
@@ -113,6 +117,9 @@ const BookingService = () => {
 
   return (
     <ScrollView style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()} >
+        <Back width="35" height="35" fill="#fff" />
+      </TouchableOpacity>
       <Text style={styles.title}>Escolha o barbeiro</Text>
 
       {/* Lista de barbeiros disponíveis */}
