@@ -7,6 +7,7 @@ const DateCard = ({ date, selectedDate, handleDateSelection }) => {
   const formattedDate = format(date, 'dd/MM/yyyy', { locale: ptBR });
   const dayOfMonth = format(date, 'dd', { locale: ptBR });
   const dayOfWeek = format(date, 'EEEEEE', { locale: ptBR }).toUpperCase(); 
+  console.log('aqui',selectedDate);
 
   return (
     <TouchableOpacity

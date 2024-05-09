@@ -1,12 +1,55 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, FlatList } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { addDays, format } from 'date-fns';
-import DateCard from "../../components/DateCards";
-
-import Back from "../../assets/back.svg";
 import { getBarbersService, getScheduleBarber } from "../../routes/routes";
+import BackButton from "../../components/BackButton";
+import BarberCard from "../../components/BarberCard";
+import TimeCard from "../../components/TimeCard";
+import ServiceCard from "../../components/ServiceCard";
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 
+LocaleConfig.locales['pt-BR'] = {
+  monthNames: [
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro',
+  ],
+  monthNamesShort: [
+    'Jan',
+    'Fev',
+    'Mar',
+    'Abr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Set',
+    'Out',
+    'Nov',
+    'Dez'
+  ],
+  dayNames: [
+    'Domingo',
+    'Segunda-feira',
+    'Terça-feira',
+    'Quarta-feira',
+    'Quinta-feira',
+    'Sexta-feira',
+    'Sábado'
+  ],
+  dayNamesShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+};
+
+LocaleConfig.defaultLocale = 'pt-BR';
 
 const BookingService = () => {
   const route = useRoute();
@@ -17,6 +60,19 @@ const BookingService = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const navigation = useNavigation();
 
+  // Configurações do calendário
+  const calendarTheme = {
+    calendarBackground: '#2D343C',
+    textSectionTitleColor: '#fff',
+    selectedDayBackgroundColor: '#E5734F',
+    selectedDayTextColor: '#fff',
+    todayTextColor: '#E5734F',
+    dayTextColor: '#fff',
+    textDisabledColor: '#666',
+    arrowColor: '#fff',
+    monthTextColor: '#fff',
+    indicatorColor: '#fff',
+  };
 
   // Função para buscar os barbeiros que oferecem o serviço selecionado
   const fetchBarbers = async () => {
@@ -33,129 +89,103 @@ const BookingService = () => {
     fetchBarbers();
   }, []);
 
+  // Função para lidar com a seleção de uma data no calendário
+  const handleDayPress = async (day) => {
+    const today = new Date();
+    const selected = new Date(day.dateString);
+    const previousDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+    if (selected > previousDay) {
+      setSelectedDate(day.dateString);
+      try {
+        const services = [selectedService]
+        const serviceIds = services.map(service => service.id).join(',');
+        const response = await getScheduleBarber(selectedBarber.auth, day.dateString, serviceIds);
+        setAvailableSlots(response.data.horarios_livres);
+      } catch (error) {
+        console.log("Error fetching barber schedule:", error);
+      }
+    }
+  };
+
   // Função para selecionar o barbeiro
   const handleBarberSelection = (barber) => {
     setSelectedBarber(barber);
   };
 
-  // Função para selecionar a data
-  const handleDateSelection = async (date) => {
-    const [day, month, year] = date.split('/');
-    const isoDate = `${year}-${month}-${day}`;
-
-    setSelectedDate(date);
-    try {
-      const services = [selectedService]
-      const serviceIds = services.map(service => service.id).join(',');
-      const response = await getScheduleBarber(selectedBarber.auth, isoDate, serviceIds);
-      setAvailableSlots(response.data.horarios_livres);
-    } catch (error) {
-      console.log("Error fetching barber schedule:", error);
-    }
+  // Função para selecionar o horário
+  const handleTimeSelection = (time) => {
+    // Implemente conforme necessário
   };
 
-  const renderBarberCards = () => {
-    return (
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={barbers}
-        keyExtractor={(item, index) => index.toString()} // Usar o índice como chave única
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.barberCard,
-              selectedBarber === item && styles.selectedBarberCard,
-            ]}
-            onPress={() => handleBarberSelection(item)}
-          >
-            <Image source={{ uri: item.photo }} style={styles.image} />
-            <Text style={styles.barberName}>{item.full_name}</Text>
-          </TouchableOpacity>
-        )}
-      />
-    );
-  };
-
-  const renderDateCards = () => {
-    const nextDays = [];
-    let currentDate = new Date();
-
-    for (let i = 0; i < 7; i++) {
-      const nextDate = addDays(currentDate, i);
-      nextDays.push(nextDate);
-    }
-
-    return (
-      <FlatList
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        data={nextDays}
-        keyExtractor={(item) => item.toISOString()}
-        renderItem={({ item }) => (
-          <DateCard
-            date={item}
-            selectedDate={selectedDate}
-            handleDateSelection={handleDateSelection}
-          />
-        )}
-      />
-    );
-  };
-
-  const renderTimeCards = () => {
-    return availableSlots.map((time, index) => (
-      <TouchableOpacity
-        key={index}
-        style={styles.timeCard}
-        onPress={() => handleTimeSelection(time)}
-      >
-        <Text style={styles.timeText}>{time}</Text>
-      </TouchableOpacity>
-    ));
+  // Função para confirmar o agendamento
+  const confirmBooking = () => {
+    // Implemente a lógica para confirmar o agendamento aqui
   };
 
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} >
-        <Back width="35" height="35" fill="#fff" />
-      </TouchableOpacity>
-      <Text style={styles.title}>Escolha o barbeiro</Text>
+      <View style={styles.header}>
+        <BackButton onPress={() => navigation.goBack()} />
+        <Text style={styles.title}>Reseva</Text>
+      </View>
 
       {/* Lista de barbeiros disponíveis */}
-
       <View style={styles.barberList}>
-        {/* Renderização dos cards dos barbeiros */}
-        {renderBarberCards()}
+        {barbers.map((barber) => (
+          <BarberCard
+            key={barber.id}
+            item={barber}
+            selectedBarber={selectedBarber}
+            onPress={() => handleBarberSelection(barber)}
+          />
+        ))}
       </View>
+      <View style={styles.line} />
 
-      {/* Carrossel de datas */}
-      <Text style={styles.subtitle}>Escolha a data</Text>
-      {renderDateCards()}
+      {/* Calendário */}
+      <Calendar
+        onDayPress={handleDayPress}
+        markedDates={selectedDate ? { [selectedDate]: { selected: true, disableTouchEvent: true } } : {}}
+        theme={calendarTheme}
+      />
 
       {/* Cards dos horários disponíveis */}
-      <Text style={styles.subtitle}>Escolha o horário</Text>
+      <View style={styles.line} />
       <View style={styles.timeContainer}>
-        {renderTimeCards()}
+        {availableSlots.map((time, index) => (
+          <TimeCard key={index} time={time} onPress={() => handleTimeSelection(time)} />
+        ))}
       </View>
 
-      {/* Botão para selecionar mais serviços */}
-      <TouchableOpacity
-        style={styles.moreServicesButton}
-        onPress={''}
-      >
-        <Text style={styles.moreServicesButtonText}>Escolher mais serviços</Text>
+      {/* Card dos serviços selecionados */}
+      <ServiceCard selectedService={selectedService}/>
+
+      {/* Botão para confirmar o agendamento */}
+      <TouchableOpacity style={styles.confirmButton} onPress={confirmBooking}>
+        <Text style={styles.confirmButtonText}>Confirmar Agendamento</Text>
       </TouchableOpacity>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  line: {
+    borderBottomWidth: 0.5,
+    borderColor: "#fff",
+    marginVertical: 10,
+  },
   container: {
     flex: 1,
     backgroundColor: "#2D343C",
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 20,
+  },
+  header: {
+    marginBottom: 10,
+    alignContent: "center",
+    alignItems: "center",
+    gap: 5,
+    flexDirection: "row",
   },
   title: {
     textAlign: "center",
@@ -164,55 +194,11 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     color: "#fff",
   },
-  subtitle: {
-    textAlign: "center",
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#fff",
-  },
-  scroll: {
-    height: 5
-  },
   barberList: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 0,
-    width: 150,
-    height: 200
-  },
-  barberCard: {
-    padding: 0,
-    borderRadius: 10,
-    marginRight: 10,
-    alignItems: "center",
-  },
-  image: {
-    borderRadius: 40,
-    height: 100,
-    width: 80,
-  },
-  selectedBarberCard: {
-    borderWidth: 0.4,
-    borderColor: "#fff",
-  },
-  barberName: {
-    marginTop: 10,
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  moreServicesButton: {
-    backgroundColor: "#343840",
-    padding: 15,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  moreServicesButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
+    marginBottom: 20,
   },
   timeContainer: {
     flexDirection: "row",
@@ -220,17 +206,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 20,
   },
-  timeCard: {
-    borderWidth: 0.4,
-    borderColor: "#fff",
-    padding: 10,
-    margin: 5,
+
+  confirmButton: {
+    backgroundColor: "#E5734F",
+    paddingVertical: 15,
     borderRadius: 5,
+    marginTop: 20,
   },
-  timeText: {
-    fontSize: 16,
-    fontWeight: "bold",
+  confirmButtonText: {
+    textAlign: "center",
     color: "#fff",
+    fontWeight: "bold",
+    fontSize: 18,
   },
 });
 
