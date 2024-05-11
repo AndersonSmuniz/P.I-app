@@ -35,7 +35,7 @@ const ServiceComponent = ({ id_category, title_category }) => {
 
     const handleScheduleService = (selectedService) => {
         console.log(selectedService);
-        navigation.navigate("Booking", { selectedService: selectedService });
+        navigation.navigate("Cart", { selectedService: selectedService });
     };
 
     return (

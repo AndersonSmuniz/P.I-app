@@ -8,7 +8,7 @@ export default ({ children }) => {
 
     return (
 
-        <UserContext.Provider>
+        <UserContext.Provider value={{ state, dispatch }}>
             {children}
         </UserContext.Provider>
     );

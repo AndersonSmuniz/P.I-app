@@ -5,53 +5,22 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 
 import { UserContext } from "../../contexts/Usercontext"
 import CategoryComponent from '../../components/CategoryComponent';
-import TeamComponent from '../../components/TeamComponent';
-import MapComponent from '../../components/MapComponent';
 
 import Location from "../../assets/location.svg"
 import Back from "../../assets/back.svg"
-import Team from "../../assets/team.svg"
 import Scissors from "../../assets/scissors.svg"
-import Map from "../../assets/map.svg"
-import { LoadingIcon } from "../Preload/styles";
 
-import { getSalon } from "../../routes/routes";
-
-const Salon = () => {
-    const { state, dispatch } = useContext(UserContext); // Use o useContext para acessar o UserContext
-    const [salonData, setSalonData] = useState(null);
+const CartService = () => {
     const [selectedIcon, setSelectedIcon] = useState('services');
     const navigation = useNavigation();
     const route = useRoute();
-    const salonId = route.params.salonId;
-
-    useEffect(() => {
-        const fetchSalonData = async () => {
-            try {
-                const response = await getSalon(salonId);
-                setSalonData(response.data);
-                // Adicione esta linha para atualizar o salão no contexto do usuário
-                dispatch({ type: 'setCurrentSalon', payload: { salon: response.data } });
-            } catch (error) {
-                console.log("Error fetching salon data:", error);
-            }
-        };
-
-        fetchSalonData();
-    }, [salonId, dispatch]);
+    const { state } = useContext(UserContext);
+    const selectedService = route.params.selectedService;
 
     const handleIconPress = (icon) => {
         setSelectedIcon(icon);
     };
-
-    if (!salonData) {
-        return (
-            <SafeAreaView style={styles.screenLoad}>
-                <LoadingIcon size="large" color={"#FEC200"} />
-            </SafeAreaView>
-        );
-    }
-
+    const salonData = state.currentSalon;
     return (
         <SafeAreaView style={styles.screen}>
             <TouchableOpacity onPress={() => navigation.goBack()} >
@@ -72,19 +41,9 @@ const Salon = () => {
                     <Scissors width="24" height="24" />
                     <Text style={styles.iconText}>Serviços</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleIconPress('barbers')} style={[styles.icon, selectedIcon === 'barbers' && styles.selectedIcon]}>
-                    <Team width="24" height="24" />
-                    <Text style={styles.iconText}>Cabeleireiros</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleIconPress('map')} style={[styles.icon, selectedIcon === 'map' && [styles.selectedIcon, styles.selectedText]]}>
-                    <Map width="24" height="24" />
-                    <Text style={[styles.iconText, selectedIcon === 'map' && styles.selectedText]}>Mapa</Text>
-                </TouchableOpacity>
             </View>
             {/* renderiza componentes com base no icine pressionado */}
             {selectedIcon === 'services' && <CategoryComponent id_salon={salonData.id} />}
-            {selectedIcon === 'barbers' && <TeamComponent />}
-            {selectedIcon === 'map' && <MapComponent />}
         </SafeAreaView>
     );
 };
@@ -93,7 +52,7 @@ const styles = StyleSheet.create({
     screenLoad: {
         flex: 1,
         backgroundColor: "#2D343C",
-        alignItems: "center",
+        alignItems:"center",
         justifyContent: "center",
     },
     screen: {
@@ -158,4 +117,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Salon;
+export default CartService;

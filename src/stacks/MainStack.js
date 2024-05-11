@@ -10,6 +10,7 @@ import MainTabClient from "./MainTabClient";
 import Salon from "../screens/Salon";
 import BookingService from "../screens/BookingService";
 import ServicesCategory from "../screens/ServicesCategory";
+import CartService from "../screens/CartService";
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,7 @@ export default () => {
             
             <Stack.Screen name="Salon" component={Salon} />
             <Stack.Screen name="Services" component={ServicesCategory} />
+            <Stack.Screen name="Cart" component={CartService} />
             <Stack.Screen name="Booking" component={BookingService} />
         </Stack.Navigator>
     );
