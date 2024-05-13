@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getBarbersService, getScheduleBarber } from "../../routes/routes";
@@ -7,6 +7,7 @@ import BarberCard from "../../components/BarberCard";
 import TimeCard from "../../components/TimeCard";
 import ServiceCard from "../../components/ServiceCard";
 import { Calendar, LocaleConfig } from 'react-native-calendars';
+import { UserContext } from "../../contexts/Usercontext";
 
 LocaleConfig.locales['pt-BR'] = {
   monthNames: [
@@ -53,13 +54,13 @@ LocaleConfig.defaultLocale = 'pt-BR';
 
 const BookingService = () => {
   const route = useRoute();
-  const selectedService = route.params.selectedService;
+  const { state: { listServices, currentSalon }, dispatch } = useContext(UserContext);
   const [barbers, setBarbers] = useState([]);
   const [selectedBarber, setSelectedBarber] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
   const navigation = useNavigation();
-
+  console.log(currentSalon)
   // Configurações do calendário
   const calendarTheme = {
     calendarBackground: '#2D343C',
@@ -77,8 +78,8 @@ const BookingService = () => {
   // Função para buscar os barbeiros que oferecem o serviço selecionado
   const fetchBarbers = async () => {
     try {
-      const response = await getBarbersService(selectedService.salon);
-      console.log("barbeiros", selectedService, response.data);
+      const response = await getBarbersService(currentSalon.id);
+      console.log("barbeiros", listServices, response.data);
       setBarbers(response.data);
     } catch (error) {
       console.log("Error fetching barbers:", error);
@@ -97,8 +98,7 @@ const BookingService = () => {
     if (selected > previousDay) {
       setSelectedDate(day.dateString);
       try {
-        const services = [selectedService]
-        const serviceIds = services.map(service => service.id).join(',');
+        const serviceIds = listServices.map(service => service.id).join(',');
         const response = await getScheduleBarber(selectedBarber.auth, day.dateString, serviceIds);
         setAvailableSlots(response.data.horarios_livres);
       } catch (error) {
@@ -121,12 +121,22 @@ const BookingService = () => {
   const confirmBooking = () => {
     // Implemente a lógica para confirmar o agendamento aqui
   };
+  const handleAddService = () => {
+    navigation.navigate("Cart")
+  };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <BackButton onPress={() => navigation.goBack()} />
-        <Text style={styles.title}>Reseva</Text>
+        <Text style={styles.title}>Reserva</Text>
+      </View>
+
+      {/* Botão para adicionar outro serviço */}
+      <View style={styles.moreService}>
+        <TouchableOpacity style={styles.addButton} onPress={handleAddService}>
+          <Text style={styles.addButtonText}>+ Adicionar Serviços</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Lista de barbeiros disponíveis */}
@@ -158,7 +168,7 @@ const BookingService = () => {
       </View>
 
       {/* Card dos serviços selecionados */}
-      <ServiceCard selectedService={selectedService}/>
+      <ServiceCard selectedServices={listServices} />
 
       {/* Botão para confirmar o agendamento */}
       <TouchableOpacity style={styles.confirmButton} onPress={confirmBooking}>
@@ -197,8 +207,8 @@ const styles = StyleSheet.create({
   barberList: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 20,
+    justifyContent: "flex-start",
+    marginBottom: 5,
   },
   timeContainer: {
     flexDirection: "row",
@@ -212,6 +222,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 5,
     marginTop: 20,
+    marginBottom: 40
   },
   confirmButtonText: {
     textAlign: "center",
@@ -219,6 +230,26 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 18,
   },
+  addButton: {
+    borderWidth: 1,
+    borderColor: "#fff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignSelf: "flex-end",
+    marginVertical: 10,
+    marginHorizontal: 10,
+  },
+  addButtonText: {
+    color: "#fff",
+    fontWeight: "300",
+    fontSize: 16,
+  },
+  moreService:{
+    marginVertical: 10,
+    borderBottomWidth: 0.5,
+    borderColor: "#fff"
+  }
 });
 
 export default BookingService;

@@ -18,15 +18,15 @@ const BarberCard = ({ item, selectedBarber, onPress }) => {
 
 const styles = StyleSheet.create({
   barberCard: {
-    padding: 0,
+    padding: 10,
     borderRadius: 10,
     marginRight: 10,
     alignItems: "center",
   },
   image: {
     borderRadius: 40,
-    height: 60,
-    width: 60,
+    height: 40,
+    width: 40,
   },
   selectedBarberCard: {
     borderBottomWidth:1,

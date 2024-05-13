@@ -3,6 +3,7 @@ export const initialState = {
     favorites: [],
     appointments: [],
     currentSalon: null,
+    listServices: [],
 };
 
 export const UserReducer = (state, action) => {
@@ -11,6 +12,10 @@ export const UserReducer = (state, action) => {
             return { ...state, avatar: action.payload.avatar };
         case 'setCurrentSalon':
             return { ...state, currentSalon: action.payload.salon };
+        case 'setServices':
+            return { ...state, listServices: action.payload.services };
+        case 'addService':
+            return { ...state, listServices: [...state.listServices, action.payload.service] };
         default:
             return state;
     }

@@ -1,17 +1,26 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const ServiceCard = ({ selectedService }) => {
+const ServiceCard = ({ selectedServices }) => {
+  // Função para calcular o preço total dos serviços
+  const calculateTotalPrice = () => {
+    let totalPrice = 0;
+    selectedServices.forEach((service) => {
+      totalPrice += Number(service.price);
+    });
+    return totalPrice;
+  };
+
   return (
     <View style={styles.selectedServicesContainer}>
-      <Text style={styles.subtitle}>Agendar</Text>
-      {[selectedService].map((service, index) => (
+      <Text style={styles.subtitle}>Serviços Selecionados</Text>
+      {selectedServices.map((service, index) => (
         <View key={index} style={styles.serviceItem}>
           <Text style={styles.serviceName}>{service.title}</Text>
           <Text style={styles.servicePrice}>R${service.price}</Text>
         </View>
       ))}
-      <Text style={styles.totalPrice}>Total: R$</Text>
+      <Text style={styles.totalPrice}>Total: R${calculateTotalPrice()}</Text>
     </View>
   );
 };

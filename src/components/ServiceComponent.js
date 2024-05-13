@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, View, Text, Image, TouchableOpacity, Modal, ScrollView } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 
 import { getSalonServices } from '../routes/routes';
 
 import Close from "../assets/close.svg"
+import { UserContext } from "../contexts/Usercontext";
 
 const ServiceComponent = ({ id_category, title_category }) => {
     const navigation = useNavigation();
-
+    const { addServiceToList } = useContext(UserContext);
     const [services, setServices] = useState([]);
     const [selectedService, setSelectedService] = useState(null);
 
@@ -34,8 +35,10 @@ const ServiceComponent = ({ id_category, title_category }) => {
     };
 
     const handleScheduleService = (selectedService) => {
-        console.log(selectedService);
-        navigation.navigate("Cart", { selectedService: selectedService });
+        if (selectedService) {
+            addServiceToList(selectedService);
+            navigation.navigate("Booking");
+        }
     };
 
     return (
