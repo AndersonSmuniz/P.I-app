@@ -98,7 +98,7 @@ const BookingService = () => {
     if (selected > previousDay) {
       setSelectedDate(day.dateString);
       try {
-        const serviceIds = listServices.map(service => service.id).join(',');
+        const serviceIds = listServices.map(service => service.id);
         const response = await getScheduleBarber(selectedBarber.auth, day.dateString, serviceIds);
         setAvailableSlots(response.data.horarios_livres);
       } catch (error) {

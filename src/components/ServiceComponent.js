@@ -37,7 +37,10 @@ const ServiceComponent = ({ id_category, title_category }) => {
     const handleScheduleService = (selectedService) => {
         if (selectedService) {
             addServiceToList(selectedService);
-            navigation.navigate("Booking");
+           navigation.reset({
+            index: 0,
+            routes: [{ name: 'Booking' }],
+        });
         }
     };
 

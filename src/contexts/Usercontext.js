@@ -6,20 +6,34 @@ export const UserContext = createContext();
 export default ({ children }) => {
     const [state, dispatch] = useReducer(UserReducer, initialState);
 
-    // Função para adicionar um serviço à lista e atualizar o total
     const addServiceToList = (service) => {
-        const updatedServices = [...state.listServices, service];
-        const total = updatedServices.reduce((acc, curr) => acc + curr.price, 0);
-        dispatch({ type: 'setServices', payload: { services: updatedServices } });
-        dispatch({ type: 'setTotal', payload: { total } });
+        const existingService = state.listServices.find(serv => serv.id === service.id);
+        const existingCategory = state.listServices.find(serv => serv.category === service.category);
+        console.log('jjjjjjjjjjjjjjjjjj',existingService, existingCategory);
+        let listServices = state.listServices
+        if (existingCategory !== undefined) {
+            listServices = removeServiceFromList(existingCategory);
+        }
+        if (existingService === undefined) {
+            console.log(listServices);
+            const updatedServices = [...listServices, service];
+            const total = updatedServices.reduce((acc, curr) => acc + parseFloat(curr.price), 0);
+            dispatch({ type: 'setServices', payload: { services: updatedServices } });
+            dispatch({ type: 'setTotal', payload: { total } });
+        }
     };
 
     // Função para remover um serviço da lista e atualizar o total
-    const removeServiceFromList = (serviceId) => {
-        const updatedServices = state.listServices.filter(service => service.id !== serviceId);
-        const total = updatedServices.reduce((acc, curr) => acc + curr.price, 0);
+    const removeServiceFromList = (serviceToRemove) => {
+        const updatedServices = state.listServices.filter(service => service.id !== serviceToRemove.id);
+        console.log(updatedServices);
+        // Calcula o novo total com base nos serviços atualizados
+        const total = updatedServices.reduce((acc, curr) => acc + parseFloat(curr.price), 0);
+
+        // Atualiza o estado global com a nova lista de serviços e o novo total
         dispatch({ type: 'setServices', payload: { services: updatedServices } });
         dispatch({ type: 'setTotal', payload: { total } });
+        return updatedServices
     };
 
     return (

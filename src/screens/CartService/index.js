@@ -15,7 +15,6 @@ const CartService = () => {
     const navigation = useNavigation();
     const route = useRoute();
     const { state } = useContext(UserContext);
-    const selectedService = route.params.selectedService;
 
     const handleIconPress = (icon) => {
         setSelectedIcon(icon);
@@ -26,22 +25,7 @@ const CartService = () => {
             <TouchableOpacity onPress={() => navigation.goBack()} >
                 <Back width="35" height="35" fill="#fff" />
             </TouchableOpacity>
-            <View style={styles.infoSalon}>
-                <Image source={{ uri: salonData.photo }} style={styles.image} />
-                <View style={styles.infoText}>
-                    <Text style={styles.nameSalon}>{salonData.name_salon}</Text>
-                    <View style={styles.line}>
-                        <Location width="24" height="24" />
-                        <Text style={styles.address}>{salonData.address}</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={styles.iconsContainer}>
-                <TouchableOpacity onPress={() => handleIconPress('services')} style={[styles.icon, selectedIcon === 'services' && styles.selectedIcon]}>
-                    <Scissors width="24" height="24" />
-                    <Text style={styles.iconText}>Serviços</Text>
-                </TouchableOpacity>
-            </View>
+            
             {/* renderiza componentes com base no icine pressionado */}
             {selectedIcon === 'services' && <CategoryComponent id_salon={salonData.id} />}
         </SafeAreaView>

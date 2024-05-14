@@ -3,7 +3,7 @@ import { Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-nati
 import { useNavigation } from "@react-navigation/native";
 import { Container, LogoContainer, InputContainer, Button, ButtonText } from "../../assets/styles/styles.js";
 import DiskBarber from "../../assets/logo/DiskBarber.svg";
-import login_client from "../../routes/routes.js"
+import { login_client } from "../../routes/routes.js"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
