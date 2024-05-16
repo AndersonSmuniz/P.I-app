@@ -11,7 +11,7 @@ const addTokenToRequest = async (method, endpoint, data) => {
 
         let response;
         if (method === 'GET') {
-            response = await api.get(endpoint, { headers });
+            response = await api.get(endpoint, data,{ headers });
         } else if (method === 'POST') {
             response = await api.post(endpoint, data, { headers });
         } else if (method === 'PUT') {
@@ -167,6 +167,7 @@ const getBarbersService = async (salon_id) => {
  * Recupera os horários disponíveis de um barbeiro para uma determinada data e serviços.
  */
 const getScheduleBarber = async (barber, date, services) => {
+    console.log(services);
     try {
         const response = await addTokenToRequest('GET', `schedule/barber/${barber}/date/${date}/`, {
             params: {
@@ -176,6 +177,16 @@ const getScheduleBarber = async (barber, date, services) => {
         return response;
     } catch (error) {
         console.error('Erro ao obter horários disponíveis do barbeiro:', error);
+        throw error;
+    }
+}
+
+const createBooking = async (data) => {
+    try {
+        const response = await addTokenToRequest('POST', 'create-booking/', data);
+        return response;
+    } catch (error) {
+        console.error('Erro ao agendar', error);
         throw error;
     }
 }
@@ -190,4 +201,5 @@ export {
     getSalonServices,
     getBarbersService,
     getScheduleBarber,
+    createBooking,
 }

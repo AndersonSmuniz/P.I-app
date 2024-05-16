@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { getBarbersService, getScheduleBarber } from "../../routes/routes";
+import { createBooking, getBarbersService, getScheduleBarber } from "../../routes/routes";
 import BackButton from "../../components/BackButton";
 import BarberCard from "../../components/BarberCard";
 import TimeCard from "../../components/TimeCard";
@@ -58,6 +58,7 @@ const BookingService = () => {
   const [barbers, setBarbers] = useState([]);
   const [selectedBarber, setSelectedBarber] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
   const navigation = useNavigation();
   console.log(currentSalon)
@@ -99,6 +100,7 @@ const BookingService = () => {
       setSelectedDate(day.dateString);
       try {
         const serviceIds = listServices.map(service => service.id);
+        console.log(serviceIds);
         const response = await getScheduleBarber(selectedBarber.auth, day.dateString, serviceIds);
         setAvailableSlots(response.data.horarios_livres);
       } catch (error) {
@@ -114,13 +116,28 @@ const BookingService = () => {
 
   // Função para selecionar o horário
   const handleTimeSelection = (time) => {
-    // Implemente conforme necessário
+    setSelectedTime(time)
   };
 
   // Função para confirmar o agendamento
-  const confirmBooking = () => {
-    // Implemente a lógica para confirmar o agendamento aqui
+  const confirmBooking = async () => {
+    try {
+      const data = {
+        salon: currentSalon.id,
+        collaborator: selectedBarber.id,
+        services: listServices.map(service => service.id),
+        date_shedule: selectedDate,
+      };
+      const response = await createBooking(data);
+      console.log("Booking created:", response);
+      navigation.navigate("Salon")
+
+
+    } catch (error) {
+      console.error("Error creating booking:", error);
+    }
   };
+
   const handleAddService = () => {
     navigation.navigate("Cart")
   };
@@ -245,7 +262,7 @@ const styles = StyleSheet.create({
     fontWeight: "300",
     fontSize: 16,
   },
-  moreService:{
+  moreService: {
     marginVertical: 10,
     borderBottomWidth: 0.5,
     borderColor: "#fff"
