@@ -1,3 +1,4 @@
+import { Alert } from "react-native";
 import api from "../Api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -24,22 +25,21 @@ const addTokenToRequest = async (method, endpoint, data) => {
 
         return response;
     } catch (error) {
-        console.error(`Erro na requisição ${endpoint}:`, error);
+        console.error(`Erro na requisição ${endpoint}:`, error.response.status);
+        handleUnauthorizedError(error)
         throw error;
     }
 };
 
 const handleUnauthorizedError = async (error) => {
+
     if (error.response && error.response.status === 401) {
         try {
-            // Atualiza o token
             await refresh_token();
-            // Tenta a requisição novamente
             return await addTokenToRequest(error.config.method, error.config.url, error.config.data);
         } catch (refreshError) {
             // Se houver erro ao atualizar o token, redireciona para SignIn
             console.error('Erro ao atualizar token:', refreshError);
-            throw new Error('Token expirado, faça login novamente.');
         }
     } else {
         throw error;
@@ -55,15 +55,15 @@ const check_token = async (data) => {
         console.log('sasda', response);
         return response.data;
     } catch (error) {
-        console.error('Erro ao checar token:', error);
+        alert("Token espirado")
         throw error;
     }
 };
 
-const refresh_token = async () => {
-    const data = await AsyncStorage.getItem('token');
+const refresh_token = async (token) => {
     try {
-        const response = await api.post('api/token/refrech/', data);
+        const response = await api.post('api/token/refresh/', token);
+        console.log(response.data);
         return response.data
     } catch (error) {
         console.error('erro ao atualizar o token', error);
@@ -192,6 +192,7 @@ const createBooking = async (data) => {
 }
 
 export {
+    refresh_token,
     check_token,
     login_client,
     getSalons,

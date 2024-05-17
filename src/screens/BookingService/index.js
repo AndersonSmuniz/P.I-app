@@ -121,20 +121,21 @@ const BookingService = () => {
 
   // Função para confirmar o agendamento
   const confirmBooking = async () => {
+    const data = {
+      salon: currentSalon.id,
+      collaborator: selectedBarber.auth,
+      services: listServices.map(service => service.id),
+      date_shedule: selectedDate,
+      start_booking: selectedTime,
+    };
+    console.log('data', data);
     try {
-      const data = {
-        salon: currentSalon.id,
-        collaborator: selectedBarber.id,
-        services: listServices.map(service => service.id),
-        date_shedule: selectedDate,
-      };
       const response = await createBooking(data);
       console.log("Booking created:", response);
       navigation.navigate("Salon")
 
-
     } catch (error) {
-      console.error("Error creating booking:", error);
+      navigation.navigate("Preload")
     }
   };
 

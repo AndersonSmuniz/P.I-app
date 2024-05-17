@@ -1,44 +1,55 @@
 import React, { useEffect } from "react";
-import { Text } from "react-native";
+import { ActivityIndicator } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-
-import { Container, LoadingIcon } from "./styles";
+import { Container } from "./styles";
 import DiskBarber from "../../assets/logo/DiskBarber.svg";
+import { refresh_token, check_token } from "../../routes/routes"
 
 export default () => {
-    const navigation = useNavigation()
-    useEffect(() => {
-        
+    const navigation = useNavigation();
 
-        // Função assíncrona para recuperar dados do AsyncStorage
-        const getData = async () => {
+    useEffect(() => {
+        const checkToken = async () => {
             try {
-                const token = await AsyncStorage.getItem('token');
-                console.log(token);
-                if (token !== null) {
-                    console.log('Data retrieved successfully:', token);
-                    navigation.reset({
-                        index: 0,
-                        routes: [{ name: 'MainTabClient'}]
-                    });
+                const tokenString = await AsyncStorage.getItem('token');
+                if (tokenString) {
+                    const tokenJson = JSON.parse(tokenString);
+                    console.log('Token JSON:', tokenJson);
+
+                    const data = {
+                        "refresh": tokenJson.refresh
+                    };
+
+                    const newToken = await refresh_token(data);
+                    if (newToken) {
+                        const updatedToken = {
+                            access: newToken.access,
+                            refresh: tokenJson.refresh
+                        };
+                        await AsyncStorage.setItem('token', JSON.stringify(updatedToken));
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'MainTabClient' }]
+                        });
+                    } else {
+                        navigation.navigate('SignIn');
+                    }
                 } else {
-                    navigation.navigate("SignIn")
+                    navigation.navigate('SignIn');
                 }
             } catch (error) {
                 console.error('Failed to retrieve data:', error);
+                navigation.navigate('SignIn');
             }
         };
-
-        // Chamada das funções de armazenamento e recuperação de dados
-        // storeData();
-        getData();
-    }, []);
+        checkToken();
+    }, [navigation]);
 
     return (
         <Container>
             <DiskBarber width="100%" height="160" />
-            <LoadingIcon size="large" color={"#FEC200"} />
+            <ActivityIndicator size="large" color={"#FEC200"} />
         </Container>
     );
 };
