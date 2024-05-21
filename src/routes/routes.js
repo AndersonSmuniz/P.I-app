@@ -66,7 +66,7 @@ const refresh_token = async (token) => {
         console.log(response.data);
         return response.data
     } catch (error) {
-        console.error('erro ao atualizar o token', error);
+        console.log('erro ao atualizar o token', error);
         throw error;
     }
 }
@@ -184,7 +184,7 @@ const getScheduleBarber = async (barber, date, services) => {
 const createBooking = async (data) => {
     try {
         const response = await addTokenToRequest('POST', 'create-booking/', data);
-        return response;
+        return response.data;
     } catch (error) {
         console.error('Erro ao agendar', error);
         throw error;

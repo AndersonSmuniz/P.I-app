@@ -39,7 +39,7 @@ export default () => {
                     navigation.navigate('SignIn');
                 }
             } catch (error) {
-                console.error('Failed to retrieve data:', error);
+                console.log('Failed to retrieve data:', error);
                 navigation.navigate('SignIn');
             }
         };
