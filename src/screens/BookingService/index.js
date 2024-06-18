@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native";
+import { useNavigation, useRoute, StackActions } from '@react-navigation/native';
 import { createBooking, getBarbersService, getScheduleBarber } from "../../routes/routes";
 import BackButton from "../../components/BackButton";
 import BarberCard from "../../components/BarberCard";
@@ -60,15 +60,15 @@ const BookingService = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [availableSlots, setAvailableSlots] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  console.log(currentSalon)
-  // Configurações do calendário
+
   const calendarTheme = {
     calendarBackground: '#2D343C',
     textSectionTitleColor: '#fff',
-    selectedDayBackgroundColor: '#E5734F',
+    selectedDayBackgroundColor: '#FEC200',
     selectedDayTextColor: '#fff',
-    todayTextColor: '#E5734F',
+    todayTextColor: '#FEC200',
     dayTextColor: '#fff',
     textDisabledColor: '#666',
     arrowColor: '#fff',
@@ -76,28 +76,38 @@ const BookingService = () => {
     indicatorColor: '#fff',
   };
 
-  // Função para buscar os barbeiros que oferecem o serviço selecionado
-  const fetchBarbers = async () => {
+  const fetchBarbersAndSetInitialValues = async () => {
     try {
       const response = await getBarbersService(currentSalon.id);
-      console.log("barbeiros", listServices, response.data);
-      setBarbers(response.data);
+      const barbersList = response.data;
+      setBarbers(barbersList);
+
+      if (barbersList.length > 0) {
+        const firstBarber = barbersList[0];
+        const today = new Date().toISOString().split('T')[0];
+        setSelectedBarber(firstBarber);
+        setSelectedDate(today);
+
+        const serviceIds = listServices.map(service => service.id);
+        const scheduleResponse = await getScheduleBarber(firstBarber.auth, today, serviceIds);
+        setAvailableSlots(scheduleResponse.data.horarios_livres);
+      }
     } catch (error) {
-      console.log("Error fetching barbers:", error);
+      console.log("Error fetching barbers and setting initial values:", error);
     }
   };
 
   useEffect(() => {
-    fetchBarbers();
+    fetchBarbersAndSetInitialValues();
   }, []);
 
-  // Função para lidar com a seleção de uma data no calendário
   const handleDayPress = async (day) => {
     const today = new Date();
     const selected = new Date(day.dateString);
     const previousDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
     if (selected > previousDay) {
       setSelectedDate(day.dateString);
+      setLoading(true);
       try {
         const serviceIds = listServices.map(service => service.id);
         console.log(serviceIds);
@@ -105,63 +115,62 @@ const BookingService = () => {
         setAvailableSlots(response.data.horarios_livres);
       } catch (error) {
         console.log("Error fetching barber schedule:", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
 
-  // Função para selecionar o barbeiro
   const handleBarberSelection = (barber) => {
     setSelectedBarber(barber);
+    if (selectedDate) {
+      handleDayPress({ dateString: selectedDate });
+    }
   };
 
-  // Função para selecionar o horário
   const handleTimeSelection = (time) => {
-    setSelectedTime(time)
+    setSelectedTime(time);
   };
 
-  // Função para confirmar o agendamento
   const confirmBooking = async () => {
+    const datetime = `${selectedDate}T${selectedTime}:00`;
     const data = {
       salon: currentSalon.id,
       collaborator: selectedBarber.auth,
       services: listServices.map(service => service.id),
       date_shedule: selectedDate,
-      start_booking: selectedTime,
+      start_booking: datetime,
     };
-    console.log('data', data);
     try {
       const response = await createBooking(data);
-      console.log("Booking created:", response);
-      navigation.navigate("Salon")
+      navigation.dispatch(StackActions.replace("Salon", {salonId: currentSalon.id}))
 
     } catch (error) {
-      navigation.navigate("Preload")
+      navigation.navigate("Preload");
     }
   };
 
   const handleAddService = () => {
-    navigation.navigate("Cart")
+    navigation.navigate("Cart");
   };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <BackButton onPress={() => navigation.goBack()} />
+        <BackButton onPress={() => navigation.navigate("Salon", { salonId: currentSalon.id })} />
         <Text style={styles.title}>Reserva</Text>
       </View>
 
-      {/* Botão para adicionar outro serviço */}
       <View style={styles.moreService}>
         <TouchableOpacity style={styles.addButton} onPress={handleAddService}>
           <Text style={styles.addButtonText}>+ Adicionar Serviços</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Lista de barbeiros disponíveis */}
       <View style={styles.barberList}>
-        {barbers.map((barber) => (
+        {barbers.map((barber, index) => (
           <BarberCard
-            key={barber.id}
+            key={index}
             item={barber}
             selectedBarber={selectedBarber}
             onPress={() => handleBarberSelection(barber)}
@@ -170,25 +179,32 @@ const BookingService = () => {
       </View>
       <View style={styles.line} />
 
-      {/* Calendário */}
       <Calendar
         onDayPress={handleDayPress}
         markedDates={selectedDate ? { [selectedDate]: { selected: true, disableTouchEvent: true } } : {}}
         theme={calendarTheme}
       />
 
-      {/* Cards dos horários disponíveis */}
       <View style={styles.line} />
-      <View style={styles.timeContainer}>
-        {availableSlots.map((time, index) => (
-          <TimeCard key={index} time={time} onPress={() => handleTimeSelection(time)} />
-        ))}
-      </View>
+      {loading ? (
+        <ActivityIndicator size="large" color="#FEC200" />
+      ) : availableSlots.length > 0 ? (
+        <View style={styles.timeContainer}>
+          {availableSlots.map((time, index) => (
+            <TimeCard
+              key={index}
+              time={time}
+              onPress={() => handleTimeSelection(time)}
+              selected={time === selectedTime}
+            />
+          ))}
+        </View>
+      ) : (
+        <Text style={styles.noSlotsText}>Sem horário disponível</Text>
+      )}
 
-      {/* Card dos serviços selecionados */}
       <ServiceCard selectedServices={listServices} />
 
-      {/* Botão para confirmar o agendamento */}
       <TouchableOpacity style={styles.confirmButton} onPress={confirmBooking}>
         <Text style={styles.confirmButtonText}>Confirmar Agendamento</Text>
       </TouchableOpacity>
@@ -234,9 +250,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 20,
   },
-
+  noSlotsText: {
+    color: "#fff",
+    textAlign: "center",
+    marginTop: 20,
+  },
   confirmButton: {
-    backgroundColor: "#E5734F",
+    backgroundColor: "#FEC200",
     paddingVertical: 15,
     borderRadius: 5,
     marginTop: 20,

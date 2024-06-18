@@ -2,25 +2,26 @@ import React, { useState, useEffect, useContext } from "react";
 import { StyleSheet, View, TouchableOpacity, Text, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
-
-import { UserContext } from "../../contexts/Usercontext"
+import { UserContext } from "../../contexts/Usercontext";
 import CategoryComponent from '../../components/CategoryComponent';
 import TeamComponent from '../../components/TeamComponent';
 import MapComponent from '../../components/MapComponent';
 
-import Location from "../../assets/location.svg"
-import Back from "../../assets/back.svg"
-import Team from "../../assets/team.svg"
-import Scissors from "../../assets/scissors.svg"
-import Map from "../../assets/map.svg"
+import Location from "../../assets/location.svg";
+import Back from "../../assets/back.svg";
+import Team from "../../assets/team.svg";
+import Scissors from "../../assets/scissors.svg";
+import Map from "../../assets/map.svg";
+import FavoriteFull from "../../assets/favorite_full.svg";
+import Favorite from "../../assets/favorite.svg";
 import { LoadingIcon } from "../Preload/styles";
-
-import { getSalon } from "../../routes/routes";
+import { getSalon, addToFavorites, removeFromFavorites } from "../../routes/routes";
 
 const Salon = () => {
-    const { state, dispatch } = useContext(UserContext); // Use o useContext para acessar o UserContext
+    const { state, dispatch } = useContext(UserContext);
     const [salonData, setSalonData] = useState(null);
     const [selectedIcon, setSelectedIcon] = useState('services');
+    const [isFavorite, setIsFavorite] = useState(false);
     const navigation = useNavigation();
     const route = useRoute();
     const salonId = route.params.salonId;
@@ -30,7 +31,7 @@ const Salon = () => {
             try {
                 const response = await getSalon(salonId);
                 setSalonData(response.data);
-                // Adicione esta linha para atualizar o salão no contexto do usuário
+                console.log(response.data);
                 dispatch({ type: 'setCurrentSalon', payload: { salon: response.data } });
             } catch (error) {
                 console.log("Error fetching salon data:", error);
@@ -40,8 +41,27 @@ const Salon = () => {
         fetchSalonData();
     }, [salonId, dispatch]);
 
+    useEffect(() => {
+        if (salonData) {
+            setIsFavorite(salonData.is_favorite);
+        }
+    }, [salonData]);
+
     const handleIconPress = (icon) => {
         setSelectedIcon(icon);
+    };
+
+    const handleFavoritePress = async () => {
+        try {
+            if (isFavorite) {
+                await removeFromFavorites(salonId);
+            } else {
+                await addToFavorites(salonId);
+            }
+            setIsFavorite(!isFavorite);
+        } catch (error) {
+            console.log("Error updating favorite status:", error);
+        }
     };
 
     if (!salonData) {
@@ -52,13 +72,34 @@ const Salon = () => {
         );
     }
 
+    // Extraindo coordenadas do salonData
+    const location = salonData.locations[0];
+    const coordinates = JSON.parse(location.coordinates);
+    const latitude = coordinates[0];
+    const longitude = coordinates[1];
+
     return (
         <SafeAreaView style={styles.screen}>
-            <TouchableOpacity onPress={() => navigation.goBack()} >
+            <TouchableOpacity onPress={() => {
+             if (navigation.canGoBack()) {
+                navigation.goBack();
+                } else {
+                navigation.navigate('MainTabClient');
+                }
+            }}>
+        
+                
                 <Back width="35" height="35" fill="#fff" />
             </TouchableOpacity>
             <View style={styles.infoSalon}>
                 <Image source={{ uri: salonData.photo }} style={styles.image} />
+                <TouchableOpacity onPress={handleFavoritePress} style={styles.favoriteIcon}>
+                    {isFavorite ? (
+                        <FavoriteFull width="35" height="35" fill="#FEC200" />
+                    ) : (
+                        <Favorite width="35" height="35" fill="#FEC200" />
+                    )}
+                </TouchableOpacity>
                 <View style={styles.infoText}>
                     <Text style={styles.nameSalon}>{salonData.name_salon}</Text>
                     <View style={styles.line}>
@@ -81,10 +122,9 @@ const Salon = () => {
                     <Text style={[styles.iconText, selectedIcon === 'map' && styles.selectedText]}>Mapa</Text>
                 </TouchableOpacity>
             </View>
-            {/* renderiza componentes com base no icine pressionado */}
             {selectedIcon === 'services' && <CategoryComponent id_salon={salonData.id} />}
-            {selectedIcon === 'barbers' && <TeamComponent />}
-            {selectedIcon === 'map' && <MapComponent />}
+            {selectedIcon === 'barbers' && <TeamComponent id_salon={salonData.id} />}
+            {selectedIcon === 'map' && <MapComponent latitude={latitude} longitude={longitude} salonName={salonData.name_salon} />}
         </SafeAreaView>
     );
 };
@@ -112,6 +152,11 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
         borderRadius: 75,
+    },
+    favoriteIcon: {
+        position: 'absolute',
+        top: 8,
+        right: "28%",
     },
     infoText: {
         alignItems: "center",

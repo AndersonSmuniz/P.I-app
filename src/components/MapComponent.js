@@ -1,11 +1,27 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 
-const MapComponent = () => {
+const MapComponent = ({ latitude, longitude, salonName }) => {
+    const initialRegion = {
+        latitude: latitude,
+        longitude: longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+    };
+
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Mapa do Salão</Text>
-            {/* Aqui você pode adicionar a integração com o mapa, como usando uma biblioteca como react-native-maps */}
+            <MapView
+                style={styles.map}
+                initialRegion={initialRegion}
+            >
+                <Marker
+                    coordinate={{ latitude: latitude, longitude: longitude }}
+                    title={salonName}
+                    description="Localização do salão"
+                />
+            </MapView>
         </View>
     );
 };
@@ -13,12 +29,9 @@ const MapComponent = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
-    text: {
-        color: '#fff',
-        fontSize: 20,
+    map: {
+        ...StyleSheet.absoluteFillObject,
     },
 });
 

@@ -6,6 +6,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const SalonsComponent = ({ salonsList }) => {
     const navigation = useNavigation();
+    console.log(salonsList)
    
     return (
         <ScrollView >

@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import HeaderClient from "../../components/HeaderClient";
 import * as Animatable from 'react-native-animatable';
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import SearchIcon from "../../assets/search.svg";
 
@@ -17,10 +18,24 @@ const HomeClient = () => {
     const [isFocused, setIsFocused] = useState(false);
     const [activeLink, setActiveLink] = useState('All');
     const [salonsList, setSalonsList] = useState([]);
+    const [userName, setUserName] = useState('');
+    
 
     useEffect(() => {
         fetchSalons();
+        retrieveUsername();
     }, []);
+
+    const retrieveUsername = async () => {
+        try {
+            const username = await AsyncStorage.getItem('Username');
+            if (username !== null) {
+                setUserName(username);
+            }
+        } catch (error) {
+            console.log('Error retrieving username:', error);
+        }
+    };
 
     const fetchSalons = async () => {
         try {
@@ -34,9 +49,12 @@ const HomeClient = () => {
     };
     const fetchSalonsFavorites = async () => {
         try {
-            console.log("fetching salons favorites");
-            const response = await getSalonsFavorites();
-            setSalonsList(response.data);
+        const response = await getSalons();
+        const salons = response.data;
+        const favorites = salons.filter(salon => salon.is_favorite);
+        setSalonsList(favorites);
+
+            setSalonsList(favorites);
         } catch (error) {
             console.log("Error fetching salons:", error);
         }
@@ -46,17 +64,15 @@ const HomeClient = () => {
         if (activeText == "All") {
             setActiveLink('All');
             fetchSalons();
-        }
-        else {
+        } else {
             setActiveLink('Favorites');
             fetchSalonsFavorites();
         }
-
     };
 
     return (
         <SafeAreaView style={styles.screen}>
-            <HeaderClient userName="Anderson Muniz" hasNotification={true} />
+            <HeaderClient userName={userName} hasNotification={true} />
             <View style={[styles.searchContainer, isFocused && styles.focusedContainer]}>
                 <TouchableOpacity
                     onPress={() => setIsFocused(true)}

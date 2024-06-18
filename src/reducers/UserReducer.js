@@ -1,5 +1,6 @@
 export const initialState = {
     avatar: '',
+    userName: '',
     favorites: [],
     appointments: [],
     currentSalon: null,
@@ -10,6 +11,8 @@ export const UserReducer = (state, action) => {
     switch (action.type) {
         case 'setAvatar':
             return { ...state, avatar: action.payload.avatar };
+        case 'setUserName':
+            return { ...state, userName: action.payload.name };
         case 'setCurrentSalon':
             return { ...state, currentSalon: action.payload.salon };
         case 'setServices':

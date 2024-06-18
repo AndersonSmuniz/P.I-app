@@ -1,18 +1,24 @@
 import React, { useState } from "react";
-import { Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { Text, TextInput, TouchableOpacity, StyleSheet, Alert, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Container, LogoContainer, InputContainer, Button, ButtonText } from "../../assets/styles/styles.js";
 import DiskBarber from "../../assets/logo/DiskBarber.svg";
-import { login_client } from "../../routes/routes.js"
+import { clientInfo, login_client } from "../../routes/routes.js"
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const LoginScreen = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [secureTextEntry, setSecureTextEntry] = useState(true);
     const navigation = useNavigation();
 
-    // Função pra o login
+    // Função para alternar visibilidade da senha
+    const toggleSecureTextEntry = () => {
+        setSecureTextEntry(!secureTextEntry);
+    };
+
+    // Função para login
     const handleLogin = async () => {
         if (username !== "" && password !== "") {
             const data = {
@@ -26,9 +32,13 @@ const LoginScreen = () => {
 
                 const tokenString = JSON.stringify(response.data);
                 await AsyncStorage.setItem('token', tokenString);
+                // Obter informações 
+                const userResponse = await clientInfo();
+                const userName = userResponse.user.username;
+                await AsyncStorage.setItem('Username', userName);
                 navigation.reset({
-                    routes:[{name:"MainTabClient"}]
-                 });
+                    routes: [{ name: "MainTabClient" }]
+                });
 
             } catch (error) {
                 console.error("Erro durante login: ", error);
@@ -55,18 +65,25 @@ const LoginScreen = () => {
                     placeholderTextColor="#000"
                     style={styles.input}
                     value={username}
+                    autoCapitalize="none"
                     onChangeText={setUsername}
                 />
 
                 {/* Rótulo e campo de senha */}
                 <Text style={styles.label}>Senha</Text>
-                <TextInput
-                    placeholderTextColor="#000"
-                    style={[styles.input, styles.lastInput]}
-                    secureTextEntry={true}
-                    value={password}
-                    onChangeText={setPassword}
-                />
+                <View style={styles.passwordContainer}>
+                    <TextInput
+                        placeholderTextColor="#000"
+                        style={[styles.input_password, styles.lastInput, { flex: 1 }]}
+                        secureTextEntry={secureTextEntry}
+                        value={password}
+                        autoCapitalize="none"
+                        onChangeText={setPassword}
+                    />
+                    <TouchableOpacity style={styles.eye} onPress={toggleSecureTextEntry}>
+                        <Icon name={secureTextEntry ? 'eye-slash' : 'eye'} size={20} color="#000" />
+                    </TouchableOpacity>
+                </View>
 
                 {/* Link para redefinir senha */}
                 <TouchableOpacity style={{ alignItems: 'flex-end' }}>
@@ -79,7 +96,7 @@ const LoginScreen = () => {
                 </Button>
 
                 {/* Link para tela de cadastro */}
-                <TouchableOpacity onPress={() => navigation.reset({ routes: [{ name: 'ChooseRole' }] })}>
+                <TouchableOpacity onPress={() => navigation.navigate('Signup_client')}>
                     <Text style={styles.signupLink}>É novo por aqui? Se cadastre!</Text>
                 </TouchableOpacity>
             </InputContainer>
@@ -103,7 +120,19 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         color: "#000",
         padding: 10,
+        paddingBottom:20,
         marginBottom: 10
+    },
+    input_password: {
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        color: "#000",
+        marginBottom: 10,
+        paddingTop:10,
+        paddingStart:10,
+    },
+    eye:{
+        marginRight:10
     },
     lastInput: {
         marginBottom: 20
@@ -120,6 +149,14 @@ const styles = StyleSheet.create({
         color: "#fff",
         textAlign: "right",
         marginTop: 20
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        padding: 0,
+        marginBottom: 20
     }
 });
 

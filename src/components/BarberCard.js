@@ -4,6 +4,7 @@ import { TouchableOpacity, Text, StyleSheet, Image } from "react-native";
 const BarberCard = ({ item, selectedBarber, onPress }) => {
   return (
     <TouchableOpacity
+      key={item.id}
       style={[
         styles.barberCard,
         selectedBarber === item && styles.selectedBarberCard,

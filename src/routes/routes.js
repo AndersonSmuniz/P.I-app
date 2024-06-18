@@ -2,7 +2,7 @@ import { Alert } from "react-native";
 import api from "../Api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const addTokenToRequest = async (method, endpoint, data) => {
+const addTokenToRequest = async (method, endpoint, data = null, params = null) => {
     try {
         const token = await AsyncStorage.getItem('token');
         const tokenJson = JSON.parse(token);
@@ -12,7 +12,7 @@ const addTokenToRequest = async (method, endpoint, data) => {
 
         let response;
         if (method === 'GET') {
-            response = await api.get(endpoint, data,{ headers });
+            response = await api.get(endpoint, { headers, params });
         } else if (method === 'POST') {
             response = await api.post(endpoint, data, { headers });
         } else if (method === 'PUT') {
@@ -32,7 +32,6 @@ const addTokenToRequest = async (method, endpoint, data) => {
 };
 
 const handleUnauthorizedError = async (error) => {
-
     if (error.response && error.response.status === 401) {
         try {
             await refresh_token();
@@ -71,6 +70,15 @@ const refresh_token = async (token) => {
     }
 }
 
+const clientInfo = async () => {
+    try {
+        const response = await addTokenToRequest("GET", "auth/")
+        return response.data
+    } catch (error) {
+        console.log("Erro ao pegar info do usuario");
+    }
+}
+
 /**
  * Faz login em um cliente usando os dados fornecidos.
  */
@@ -103,7 +111,7 @@ const getSalons = async () => {
  */
 const getSalonsFavorites = async () => {
     try {
-        const response = await addTokenToRequest('GET', 'salon/');
+        const response = await addTokenToRequest('GET', 'favorite/');
         return response;
     } catch (error) {
         console.error('Erro ao obter lista de salões favoritos:', error);
@@ -167,13 +175,8 @@ const getBarbersService = async (salon_id) => {
  * Recupera os horários disponíveis de um barbeiro para uma determinada data e serviços.
  */
 const getScheduleBarber = async (barber, date, services) => {
-    console.log(services);
     try {
-        const response = await addTokenToRequest('GET', `schedule/barber/${barber}/date/${date}/`, {
-            params: {
-                services: services
-            }
-        });
+        const response = await addTokenToRequest('GET', `schedule/barber/${barber}/date/${date}/`, null, { services });
         return response;
     } catch (error) {
         console.error('Erro ao obter horários disponíveis do barbeiro:', error);
@@ -183,13 +186,73 @@ const getScheduleBarber = async (barber, date, services) => {
 
 const createBooking = async (data) => {
     try {
-        const response = await addTokenToRequest('POST', 'create-booking/', data);
+        const response = await addTokenToRequest('POST', 'booking/', data);
         return response.data;
     } catch (error) {
         console.error('Erro ao agendar', error);
         throw error;
     }
 }
+
+const getBookings = async () => {
+    try {
+        const response = await addTokenToRequest('GET', 'booking/');
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar agendamentos', error);
+        throw error;
+    }
+};
+
+export const getBarbers = async (salonId) => {
+    try {
+        const response = await addTokenToRequest('GET', `salon/${salonId}/barbers`);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao buscar colaboradores:", error);
+        throw error;
+    }
+};
+
+const addToFavorites = async (salonId) => {
+    try {
+        const response = await addTokenToRequest('POST', `favorite/`, { salon: salonId });
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao adicionar aos favoritos:", error);
+        throw error;
+    }
+};
+
+const removeFromFavorites = async (salonId) => {
+    try {
+        const response = await addTokenToRequest('DELETE', `favorite/${salonId}/`);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao remover dos favoritos:", error);
+        throw error;
+    }
+};
+const getProfile = async () => {
+    try {
+        const response = await addTokenToRequest('GET', `client/create/`);
+        return response.data[0];
+    } catch (error) {
+        console.error("Erro ao buscar info:", error);
+        throw error;
+    }
+};
+
+const cancelBooking = async (bookingId) => {
+    try {
+        const response = await addTokenToRequest('DELETE', `booking/${bookingId}/`);
+        return response.data;
+    } catch (error) {
+        console.log("Erro ao remover dos agendamento:", error);
+        throw error;
+    }
+};
+
 
 export {
     refresh_token,
@@ -203,4 +266,10 @@ export {
     getBarbersService,
     getScheduleBarber,
     createBooking,
-}
+    getBookings,
+    clientInfo,
+    addToFavorites,
+    removeFromFavorites,
+    getProfile,
+    cancelBooking,
+};

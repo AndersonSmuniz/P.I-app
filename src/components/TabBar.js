@@ -10,7 +10,7 @@ import AccountIcon from "../assets/account.svg";
 
 const TabArea = styled.View`
   height: 60px;
-  background-color: #303233;
+  background-color: #343840;
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
@@ -41,24 +41,14 @@ export default ({ state, navigation }) => {
           <HomeIcon width="24" height="24"  fill={(state.index === 0? "#FFF" : "#FEC200")} />
         </TabIcon>
       </TabButton>
-      <TabButton onPress={() => goTo("Search")}>
-        <TabIcon active={state.index === 1}>
-          <SearchIcon width="24" height="24" fill={(state.index === 1? "#FFF" : "#FEC200")} />
-        </TabIcon>
-      </TabButton>
       <TabButton onPress={() => goTo("Appointments")}>
-        <TabIcon active={state.index === 2}>
-          <TodayIcon width="24" height="24" fill={(state.index === 2? "#FFF" : "#FEC200")} />
-        </TabIcon>
-      </TabButton>
-      <TabButton onPress={() => goTo("Favorites")}>
-        <TabIcon active={state.index === 3}>
-          <FavoriteIcon width="24" height="24" fill={(state.index === 3? "#FFF" : "#FEC200")} />
+        <TabIcon active={state.index === 1}>
+          <TodayIcon width="24" height="24" fill={(state.index === 1? "#FFF" : "#FEC200")} />
         </TabIcon>
       </TabButton>
       <TabButton onPress={() => goTo("Profile")}>
-        <TabIcon active={state.index === 4}>
-          <AccountIcon width="24" height="24" fill={(state.index === 4? "#FFF" : "#FEC200")} />
+        <TabIcon active={state.index === 2}>
+          <AccountIcon width="24" height="24" fill={(state.index === 2? "#FFF" : "#FEC200")} />
         </TabIcon>
       </TabButton>
     </TabArea>

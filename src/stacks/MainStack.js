@@ -11,6 +11,7 @@ import Salon from "../screens/Salon";
 import BookingService from "../screens/BookingService";
 import ServicesCategory from "../screens/ServicesCategory";
 import CartService from "../screens/CartService";
+import BookingDetails from "../screens/BookingDetails";
 
 const Stack = createStackNavigator();
 
@@ -34,6 +35,7 @@ export default () => {
             <Stack.Screen name="Services" component={ServicesCategory} />
             <Stack.Screen name="Cart" component={CartService} />
             <Stack.Screen name="Booking" component={BookingService} />
+            <Stack.Screen name="BookingDetails" component={BookingDetails} />
         </Stack.Navigator>
     );
 }

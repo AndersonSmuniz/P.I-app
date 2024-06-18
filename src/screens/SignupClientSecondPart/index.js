@@ -16,7 +16,7 @@ const SignupClientSecondPartScreen = () => {
     const [formProgress, setFormProgress] = useState(50);
 
     const handleConfirm = () => {
-        navigation.navigate('SignupFinishedScreen');
+        navigation.navigate('SignIn');
     };
 
     const updateFormProgress = () => {

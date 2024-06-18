@@ -1,10 +1,10 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 
-const TimeCard = ({ time, onPress }) => {
+const TimeCard = ({ time, onPress, selected }) => {
   return (
     <TouchableOpacity
-      style={styles.timeCard}
+      style={[styles.timeCard, selected && styles.selectedTimeCard]}
       onPress={onPress}
     >
       <Text style={styles.timeText}>{time}</Text>
@@ -19,6 +19,10 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 5,
     borderRadius: 5,
+    backgroundColor: "#343840",
+  },
+  selectedTimeCard: {
+    backgroundColor: "#FEC200",
   },
   timeText: {
     fontSize: 16,

@@ -6,11 +6,12 @@ import { useNavigation } from "@react-navigation/native";
 
 const SalonsFavoritesComponent = ({ salonsList }) => {
     const navigation = useNavigation();
+    console.log(salonsList)
    
     return (
         <ScrollView >
             {salonsList.map((salon, index) => (
-                <TouchableOpacity key={index} style={styles.card} onPress={() => navigation.navigate("Salon")}>
+                <TouchableOpacity key={index} style={styles.card} onPress={() => navigation.navigate("Salon", { salonId: salon.id })}>
                     <Image source={{ uri: salon.photo }} style={styles.image} />
                     <View>
                         <Text style={styles.textCard}>{salon.name_salon}</Text>

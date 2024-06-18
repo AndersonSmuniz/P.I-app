@@ -85,7 +85,7 @@ const SignupClientScreen = () => {
         </Button>
 
         {/* Link para redirecionar cadastro de profissional */}
-        <TouchableOpacity onPress={() => navigation.navigate('SignupProfessionalScreen')}>
+        <TouchableOpacity>
           <Text style={styles.signupLink}>É barbeiro? Clique aqui.</Text>
         </TouchableOpacity>
       </InputContainer>

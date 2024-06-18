@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { Container } from "./styles";
 import DiskBarber from "../../assets/logo/DiskBarber.svg";
-import { refresh_token, check_token } from "../../routes/routes"
+import { refresh_token, check_token, clientInfo } from "../../routes/routes";
 
 export default () => {
     const navigation = useNavigation();
@@ -13,7 +13,7 @@ export default () => {
         const checkToken = async () => {
             try {
                 const tokenString = await AsyncStorage.getItem('token');
-                if (tokenString) {
+                if (!tokenString) {
                     const tokenJson = JSON.parse(tokenString);
                     console.log('Token JSON:', tokenJson);
 
@@ -28,6 +28,12 @@ export default () => {
                             refresh: tokenJson.refresh
                         };
                         await AsyncStorage.setItem('token', JSON.stringify(updatedToken));
+
+                        // Obter informações 
+                        const userResponse = await clientInfo();
+                        const userName = userResponse.user.username;
+                        await AsyncStorage.setItem('Username', userName);
+
                         navigation.reset({
                             index: 0,
                             routes: [{ name: 'MainTabClient' }]
